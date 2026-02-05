@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import { Linkedin } from 'lucide-react';
+import { Logo } from '../ui/Logo';
 
 export function Footer() {
     const currentYear = new Date().getFullYear();
@@ -8,12 +8,8 @@ export function Footer() {
         <footer className="bg-white border-t border-slate-200 mt-auto">
             <div className="max-w-6xl mx-auto px-4 py-8">
                 {/* Brand Section */}
-                <div className="text-center mb-6">
-                    <Link to="/" className="inline-block group">
-                        <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-1 group-hover:opacity-80 transition-opacity">
-                            Docura
-                        </h3>
-                    </Link>
+                <div className="flex flex-col items-center mb-6">
+                    <Logo size="lg" showIcon={true} className="mb-2" />
                     <p className="text-sm text-slate-600">Intelligence for Your Documents</p>
                 </div>
 

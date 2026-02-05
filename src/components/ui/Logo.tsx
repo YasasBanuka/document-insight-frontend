@@ -8,13 +8,14 @@ interface LogoProps {
 
 /**
  * Docura Logo Component
- * Professional branded logo with optional icon
+ * Professional branded logo with icon
+ * Responsive: shows icon only on mobile, icon + text on desktop
  */
-export function Logo({ size = 'md', className = '' }: LogoProps) {
+export function Logo({ size = 'md', showIcon = true, className = '' }: LogoProps) {
     const sizeClasses = {
-        sm: 'text-xl',
-        md: 'text-2xl',
-        lg: 'text-3xl',
+        sm: { text: 'text-xl', icon: 'w-6 h-6' },
+        md: { text: 'text-2xl', icon: 'w-8 h-8' },
+        lg: { text: 'text-3xl', icon: 'w-10 h-10' },
     };
 
     return (
@@ -23,7 +24,14 @@ export function Logo({ size = 'md', className = '' }: LogoProps) {
             className={`group inline-flex items-center gap-2 ${className}`}
             aria-label="Docura Home"
         >
-            <span className={`${sizeClasses[size]} font-bold bg-gradient-primary bg-clip-text text-transparent group-hover:opacity-80 transition-opacity`}>
+            {showIcon && (
+                <img 
+                    src="/favicon/favicon.svg" 
+                    alt="Docura Logo" 
+                    className={`${sizeClasses[size].icon} group-hover:scale-105 transition-transform`}
+                />
+            )}
+            <span className={`${sizeClasses[size].text} font-bold bg-gradient-primary bg-clip-text text-transparent group-hover:opacity-80 transition-opacity hidden sm:inline`}>
                 Docura
             </span>
         </Link>

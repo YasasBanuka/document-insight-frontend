@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Search, Loader2, ChevronLeft, ChevronRight, X, History, Clock } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, X, History, Clock } from 'lucide-react';
 import { documentApi } from '../api/documentApi';
 import { SearchResultCard } from './SearchResultCard';
 import { SearchResultSkeleton } from '../../../components/ui/Skeleton';

@@ -1,84 +1,22 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import { Upload, File, Loader2 } from 'lucide-react';
+import { Upload, File, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { documentApi } from '../api/documentApi';
-import type { UploadResponse } from '../../../types/api.types';
 
 export function FileUpload() {
   const queryClient = useQueryClient();
-  const [lastUploadedFile, setLastUploadedFile] = useState<string | null>(null);
 
   const uploadMutation = useMutation({
     mutationFn: (file: File) => documentApi.upload(file),
-    onSuccess: (data: UploadResponse) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
-      setLastUploadedFile(data.filename);
-
-      // Success toast
-      toast.success(
-        `${data.filename} uploaded successfully!`,
-        {
-          duration: 5000,
-        }
-      );
-    },
-    onError: (error: Error) => {
-      // Improved error messages
-      let errorMessage = 'Upload failed';
-
-      if (error.message.includes('size')) {
-        errorMessage = 'File too large. Maximum size is 10MB. Try compressing your file.';
-      } else if (error.message.includes('type')) {
-        errorMessage = 'Invalid file type. Only PDF, DOCX, and TXT files are supported.';
-      } else if (error.message.includes('network')) {
-        errorMessage = 'Network error. Please check your internet connection.';
-      } else {
-        errorMessage = `Upload failed: ${error.message}`;
-      }
-
-      toast.error(errorMessage, {
-        duration: 6000,
-      });
     },
   });
 
-  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
-    // Handle rejected files
-    if (rejectedFiles.length > 0) {
-      const rejection = rejectedFiles[0];
-
-      if (rejection.errors[0]?.code === 'file-too-large') {
-        toast.error('File too large. Maximum size is 10MB.', {
-          duration: 5000,
-        });
-      } else if (rejection.errors[0]?.code === 'file-invalid-type') {
-        toast.error('Invalid file type. Only PDF, DOCX, and TXT files are supported.', {
-          duration: 5000,
-        });
-      } else {
-        toast.error('Cannot upload this file. Please try another one.', {
-          duration: 5000,
-        });
-      }
-      return;
-    }
-
-    // Handle accepted files
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-
-      // Validation toast
-      toast.loading(`Uploading ${file.name}...`, {
-        id: 'upload-progress',
-      });
-
-      uploadMutation.mutate(file, {
-        onSettled: () => {
-          toast.dismiss('upload-progress');
-        },
-      });
+      uploadMutation.mutate(acceptedFiles[0]);
     }
   }, [uploadMutation]);
 
@@ -100,15 +38,15 @@ export function FileUpload() {
         className={`
           border-2 border-dashed rounded-xl p-12 text-center cursor-pointer
           transition-all duration-200
-          ${isDragActive
-            ? 'border-primary-500 bg-primary-50 scale-[1.02]'
-            : 'border-slate-300 hover:border-slate-400 bg-white hover:shadow-md'
+          ${isDragActive 
+            ? 'border-blue-500 bg-blue-50' 
+            : 'border-slate-300 hover:border-slate-400 bg-white'
           }
           ${uploadMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
         <input {...getInputProps()} />
-
+        
         <div className="space-y-4">
           <div className="flex justify-center">
             {uploadMutation.isPending ? (
@@ -119,11 +57,11 @@ export function FileUpload() {
               </div>
             )}
           </div>
-
+          
           {uploadMutation.isPending ? (
             <div>
               <p className="text-slate-700 font-medium">Uploading document...</p>
-              <p className="text-sm text-slate-500 mt-1">This may take a moment</p>
+              <p className="text-sm text-slate-500 mt-1">Please wait</p>
             </div>
           ) : (
             <>
@@ -140,6 +78,26 @@ export function FileUpload() {
                 <span>Supports PDF, DOCX, TXT • Max 10MB</span>
               </div>
             </>
+          )}
+          
+          {uploadMutation.isError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="text-left">
+                <p className="text-sm font-medium text-red-900">Upload failed</p>
+                <p className="text-xs text-red-700 mt-1">{uploadMutation.error.message}</p>
+              </div>
+            </div>
+          )}
+          
+          {uploadMutation.isSuccess && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-start gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div className="text-left">
+                <p className="text-sm font-medium text-green-900">Upload successful</p>
+                <p className="text-xs text-green-700 mt-1">{uploadMutation.data.filename}</p>
+              </div>
+            </div>
           )}
         </div>
       </div>

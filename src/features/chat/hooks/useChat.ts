@@ -17,21 +17,33 @@ export function useChat() {
         content: data.answer,
         timestamp: new Date(),
       };
-      
-      setMessages(prev => prev.map(msg => 
+
+      setMessages(prev => prev.map(msg =>
         msg.isLoading ? answerMessage : msg
       ));
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      // Handle different error types
+      let errorContent: string;
+
+      // Check if it's a 429 rate limit error
+      if (error.response?.status === 429) {
+        const retryAfter = error.response.data?.retryAfter || 60;
+        errorContent = `⏱️ Rate limit exceeded. Please wait ${retryAfter} seconds before asking another question.`;
+      } else {
+        // Other errors - try to get meaningful message
+        errorContent = error.response?.data?.message || `Error: ${error.message}`;
+      }
+
       // Replace loading message with error
       const errorMessage: ChatMessage = {
         id: Date.now().toString() + '-error',
         type: 'answer',
-        content: `Error: ${error.message}`,
+        content: errorContent,
         timestamp: new Date(),
       };
-      
-      setMessages(prev => prev.map(msg => 
+
+      setMessages(prev => prev.map(msg =>
         msg.isLoading ? errorMessage : msg
       ));
     },

@@ -36,6 +36,7 @@ export interface RAGResponse {
   answer: string;
   contextChunks: number;
 }
+
 // Chat Message (Frontend-only model)
 export interface ChatMessage {
   id: string;
@@ -43,6 +44,7 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   isLoading?: boolean;
+  sources?: RAGSource[]; 
 }
 
 // Search Result (Individual chunk)
@@ -82,13 +84,15 @@ export interface ChatRequest {
 
 // Chat Response
 export interface ChatResponse {
+  question?: string;
   answer: string;
-  question: string;
-  contextChunks: number;
-  sources?: Array<{
-    documentId: number;
-    filename: string;
-    chunkIndex: number;
-    content: string;
-  }>;
+  contextChunks?: number;
+  sources?: RAGSource[];
+}
+
+// RAG Source (for displaying sources in the UI)
+export interface RAGSource {
+  filename: string;
+  similarity: number;
+  documentId: number;
 }

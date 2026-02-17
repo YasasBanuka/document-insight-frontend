@@ -10,12 +10,14 @@ export function useChat() {
   const askMutation = useMutation({
     mutationFn: (question: string) => documentApi.askQuestion(question),
     onSuccess: (data) => {
+      
       // Add AI answer to messages
       const answerMessage: ChatMessage = {
         id: Date.now().toString() + '-answer',
         type: 'answer',
         content: data.answer,
         timestamp: new Date(),
+        sources: data.sources,
       };
 
       setMessages(prev => prev.map(msg =>

@@ -9,7 +9,10 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
+  
   const [copied, setCopied] = useState(false);
+  const [showSources, setShowSources] = useState(false);
+
   const isQuestion = message.type === 'question';
 
   const handleCopy = async () => {
@@ -67,7 +70,43 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             minute: '2-digit'
           })}
         </div>
+
+        {/* Sources Section - Only show for answers with sources */}
+        {!isQuestion && message.sources && message.sources.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-slate-200">
+            {/* Toggle button */}
+            <button
+              onClick={() => setShowSources(!showSources)}
+              className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 transition-colors"
+            >
+              <span>{showSources ? '▼' : '▶'}</span>
+              <span>{message.sources.length} source{message.sources.length > 1 ? 's' : ''}</span>
+            </button>
+            
+            {/* Expandable sources list */}
+            {showSources && (
+              <div className="mt-2 space-y-1">
+                {message.sources.map((source, idx) => (
+                  <div 
+                    key={idx} 
+                    className="text-xs bg-slate-50 rounded px-3 py-2 flex items-center justify-between hover:bg-slate-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-primary-500">📄</span>
+                      <span className="font-medium text-slate-700">{source.filename}</span>
+                    </div>
+                    <span className="text-slate-400 text-xs font-mono">
+                      {(source.similarity * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        
       </div>
     </div>
   );
 }
+

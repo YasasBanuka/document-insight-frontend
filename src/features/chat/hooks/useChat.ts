@@ -1,23 +1,33 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { documentApi } from '../../documents/api/documentApi';
-import type { ChatMessage } from '../../../types/api.types';
+import type { ChatMessage, ChatResponse } from '../../../types/api.types';
 
 export function useChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState<number | null>(null);
 
-  // Mutation for asking questions
   const askMutation = useMutation({
-    mutationFn: (question: string) => documentApi.askQuestion(question),
+    mutationFn: async (question: string): Promise<ChatResponse & { conversationId?: number }> => {
+      if (conversationId) {
+        return documentApi.addToConversation(conversationId, question);
+      } else {
+        return documentApi.createConversation(question);
+      }
+    },
     onSuccess: (data) => {
-      
-      // Add AI answer to messages
+      // Set conversation ID if new
+      if (!conversationId && data.conversationId) {
+        setConversationId(data.conversationId);
+      }
+
+      // Add answer to messages
       const answerMessage: ChatMessage = {
         id: Date.now().toString() + '-answer',
         type: 'answer',
         content: data.answer,
-        timestamp: new Date(),
         sources: data.sources,
+        timestamp: new Date(),
       };
 
       setMessages(prev => prev.map(msg =>
@@ -25,19 +35,26 @@ export function useChat() {
       ));
     },
     onError: (error: any) => {
-      // Handle different error types
       let errorContent: string;
+      const status = error.response?.status;
 
-      // Check if it's a 429 rate limit error
-      if (error.response?.status === 429) {
+      if (status === 429) {
         const retryAfter = error.response.data?.retryAfter || 60;
-        errorContent = `⏱️ Rate limit exceeded. Please wait ${retryAfter} seconds before asking another question.`;
+        errorContent = `⏱️ Rate limit reached. Please wait ${retryAfter} seconds before trying again.`;
+      } else if (status === 401 || status === 403) {
+        errorContent = '🔒 Your session has expired. Please log in again.';
+      } else if (status === 404) {
+        errorContent = '📄 No documents found. Please upload some documents first, then try asking again.';
+      } else if (status === 500) {
+        errorContent = '⚠️ Something went wrong on our end. Please try again in a moment.';
+      } else if (status === 503) {
+        errorContent = '🔧 Our servers are busy right now. Please try again shortly.';
+      } else if (!error.response) {
+        errorContent = '🌐 Unable to connect. Please check your internet connection and try again.';
       } else {
-        // Other errors - try to get meaningful message
-        errorContent = error.response?.data?.message || `Error: ${error.message}`;
+        errorContent = '⚠️ Something went wrong. Please try again.';
       }
 
-      // Replace loading message with error
       const errorMessage: ChatMessage = {
         id: Date.now().toString() + '-error',
         type: 'answer',
@@ -53,8 +70,6 @@ export function useChat() {
 
   const sendMessage = (question: string) => {
     if (!question.trim()) return;
-
-    // Add user question
     const questionMessage: ChatMessage = {
       id: Date.now().toString(),
       type: 'question',
@@ -62,7 +77,6 @@ export function useChat() {
       timestamp: new Date(),
     };
 
-    // Add loading placeholder for answer
     const loadingMessage: ChatMessage = {
       id: Date.now().toString() + '-loading',
       type: 'answer',
@@ -72,19 +86,28 @@ export function useChat() {
     };
 
     setMessages(prev => [...prev, questionMessage, loadingMessage]);
-
-    // Call API
     askMutation.mutate(question);
   };
 
-  const clearChat = () => {
-    setMessages([]);
+  const loadConversation = (id: number) => {
+    documentApi.getConversation(id).then(data => {
+      setConversationId(id);
+      setMessages(data.messages.map(msg => ({
+        id: msg.id.toString(),
+        type: msg.type.toLowerCase() as 'question' | 'answer',
+        content: msg.content,
+        sources: msg.sources,
+        timestamp: new Date(msg.createdAt),
+      })));
+    });
   };
 
   return {
     messages,
+    conversationId,
     sendMessage,
-    clearChat,
+    loadConversation,
+    clearChat: () => { setMessages([]); setConversationId(null); },
     isLoading: askMutation.isPending,
   };
 }

@@ -38,29 +38,29 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className="border-t border-slate-200 p-4 bg-white">
+    <form onSubmit={handleSubmit} className="border-t border-slate-200 p-2.5 sm:p-4 bg-white flex-shrink-0">
       <div className="flex gap-2">
         <input
           ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your question... (Ctrl+K to focus)"
+          placeholder="Type your question..."
           disabled={isLoading}
           aria-label="Chat message input"
-          className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed text-slate-900 placeholder-slate-400"
+          className="flex-1 px-3 py-2 sm:px-4 sm:py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed text-sm sm:text-base text-slate-900 placeholder-slate-400"
         />
         <button
           type="submit"
           disabled={!input.trim() || isLoading}
           aria-label="Send message"
-          className="px-5 py-2.5 bg-gradient-primary text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-lg shadow-primary-500/30"
+          className="px-3 py-2 sm:px-5 sm:py-2.5 bg-gradient-primary text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-lg shadow-primary-500/30"
         >
           <Send className="w-4 h-4" />
           <span className="hidden sm:inline">Send</span>
         </button>
       </div>
-      <p className="text-xs text-slate-400 mt-2">
+      <p className="text-[10px] sm:text-xs text-slate-400 mt-1.5 sm:mt-2 hidden sm:block">
         Press Enter to send • Ctrl+K to focus
       </p>
     </form>

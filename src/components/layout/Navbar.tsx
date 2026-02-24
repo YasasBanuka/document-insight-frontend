@@ -27,17 +27,16 @@ export function Navbar() {
   };
   const isActive = (path: string) => location.pathname === path;
   const linkClass = (path: string) =>
-    `flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-      isActive(path)
-        ? 'bg-gradient-primary text-white shadow-sm'
-        : 'text-slate-700 hover:bg-slate-100'
+    `flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isActive(path)
+      ? 'bg-gradient-primary text-white shadow-sm'
+      : 'text-slate-700 hover:bg-slate-100'
     }`;
   return (
     <nav className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50 backdrop-blur-sm bg-white/90">
       <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Logo size="md" showIcon={true} />
-          
+
           {/* Navigation Links */}
           <div className="flex gap-2">
             <Link to="/" className={linkClass('/')}>
@@ -62,6 +61,7 @@ export function Navbar() {
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+              aria-label="User profile"
             >
               <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-white" />
@@ -69,10 +69,9 @@ export function Navbar() {
               <span className="hidden md:inline text-sm font-medium text-slate-700">
                 {user?.name}
               </span>
-              <ChevronDown 
-                className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
-                  isDropdownOpen ? 'rotate-180' : ''
-                }`}
+              <ChevronDown
+                className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''
+                  }`}
               />
             </button>
             {/* Dropdown Menu */}
@@ -99,6 +98,7 @@ export function Navbar() {
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    aria-label="Logout"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Logout</span>

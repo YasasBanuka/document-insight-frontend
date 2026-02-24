@@ -1,14 +1,26 @@
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { documentApi } from '../../documents/api/documentApi';
 import type { ChatMessage, ChatResponse } from '../../../types/api.types';
+import { useChatStore } from '../../../store/chatStore';
 
 export function useChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [conversationId, setConversationId] = useState<number | null>(null);
+  const {
+    messages,
+    conversationId,
+    isLoading,
+    addMessage,
+    updateMessage,
+    setMessages,
+    setConversationId,
+    setLoading,
+    clearChat: clearStoreAction
+  } = useChatStore();
+
+  const queryClient = useQueryClient();
 
   const askMutation = useMutation({
     mutationFn: async (question: string): Promise<ChatResponse & { conversationId?: number }> => {
+      setLoading(true);
       if (conversationId) {
         return documentApi.addToConversation(conversationId, question);
       } else {
@@ -16,9 +28,11 @@ export function useChat() {
       }
     },
     onSuccess: (data) => {
+      setLoading(false);
       // Set conversation ID if new
       if (!conversationId && data.conversationId) {
         setConversationId(data.conversationId);
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
       }
 
       // Add answer to messages
@@ -30,11 +44,16 @@ export function useChat() {
         timestamp: new Date(),
       };
 
-      setMessages(prev => prev.map(msg =>
-        msg.isLoading ? answerMessage : msg
-      ));
+      // Find and update the loading message
+      const loadingMsg = messages.find(m => m.isLoading);
+      if (loadingMsg) {
+        updateMessage(loadingMsg.id, { ...answerMessage, isLoading: false });
+      } else {
+        addMessage(answerMessage);
+      }
     },
     onError: (error: any) => {
+      setLoading(false);
       let errorContent: string;
       const status = error.response?.status;
 
@@ -62,14 +81,18 @@ export function useChat() {
         timestamp: new Date(),
       };
 
-      setMessages(prev => prev.map(msg =>
-        msg.isLoading ? errorMessage : msg
-      ));
+      const loadingMsg = messages.find(m => m.isLoading);
+      if (loadingMsg) {
+        updateMessage(loadingMsg.id, { ...errorMessage, isLoading: false });
+      } else {
+        addMessage(errorMessage);
+      }
     },
   });
 
   const sendMessage = (question: string) => {
     if (!question.trim()) return;
+
     const questionMessage: ChatMessage = {
       id: Date.now().toString(),
       type: 'question',
@@ -85,12 +108,15 @@ export function useChat() {
       isLoading: true,
     };
 
-    setMessages(prev => [...prev, questionMessage, loadingMessage]);
+    addMessage(questionMessage);
+    addMessage(loadingMessage);
     askMutation.mutate(question);
   };
 
   const loadConversation = (id: number) => {
+    setLoading(true);
     documentApi.getConversation(id).then(data => {
+      setLoading(false);
       setConversationId(id);
       setMessages(data.messages.map(msg => ({
         id: msg.id.toString(),
@@ -99,6 +125,8 @@ export function useChat() {
         sources: msg.sources,
         timestamp: new Date(msg.createdAt),
       })));
+    }).catch(() => {
+      setLoading(false);
     });
   };
 
@@ -107,7 +135,7 @@ export function useChat() {
     conversationId,
     sendMessage,
     loadConversation,
-    clearChat: () => { setMessages([]); setConversationId(null); },
-    isLoading: askMutation.isPending,
+    clearChat: clearStoreAction,
+    isLoading: askMutation.isPending || isLoading,
   };
 }

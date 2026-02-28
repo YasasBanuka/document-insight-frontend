@@ -203,6 +203,16 @@ For production Docker builds, the API base URL is set to `/api` (relative path),
 
 ---
 
+## 📚 Further Documentation
+
+| Document | Description |
+|---|---|
+| [docs/components.md](docs/components.md) | Complete component reference: Chat, Documents, UI primitives, pages, routing |
+| [docs/state-management.md](docs/state-management.md) | AuthContext lifecycle, Zustand chatStore, Axios queue-based token refresh |
+| [docs/testing.md](docs/testing.md) | Testing pyramid, Vitest component/hook/store tests, Playwright E2E guide |
+
+---
+
 ## 🔗 Related Repositories
 
 - **[docura-backend](https://github.com/YasasBanuka/document-insight-backend)** — Spring Boot 3 RAG engine, API, pgvector

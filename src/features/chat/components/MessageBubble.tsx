@@ -28,11 +28,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   };
 
   return (
-    <div className={`flex ${isQuestion ? 'justify-end' : 'justify-start'} mb-3 sm:mb-4 group`}>
+    <div className={`flex ${isQuestion ? 'justify-end' : 'justify-start'} mb-4 sm:mb-6 group`}>
       <div
-        className={`max-w-[92%] sm:max-w-[85%] rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 relative ${isQuestion
-          ? 'bg-gradient-primary text-white shadow-lg shadow-primary-500/20'
-          : 'bg-white text-slate-800 border border-slate-200 shadow-sm'
+        className={`max-w-[95%] sm:max-w-[90%] md:max-w-[85%] rounded-2xl px-4 py-3 sm:px-5 sm:py-4 relative shadow-sm ${isQuestion
+          ? 'bg-gradient-primary text-white shadow-primary-500/20'
+          : 'bg-white text-slate-800 border border-slate-200'
           }`}
       >
         {message.isLoading ? (
@@ -42,7 +42,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           </div>
         ) : (
           <>
-            <div className="whitespace-pre-wrap break-words text-[13px] sm:text-sm leading-relaxed pr-6 sm:pr-8">
+            <div className="whitespace-pre-wrap break-words text-sm sm:text-base leading-relaxed pr-8 sm:pr-10">
               {message.content}
             </div>
 

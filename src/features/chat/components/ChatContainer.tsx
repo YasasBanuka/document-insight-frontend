@@ -88,9 +88,9 @@ export function ChatContainer() {
 
   return (
     <>
-      <div className="flex gap-0 md:gap-4 h-[calc(100vh-12rem)] md:h-[calc(100vh-14rem)] min-h-[400px]">
+      <div className="flex gap-0 md:gap-6 h-[calc(100vh-8rem)] md:h-[calc(100vh-8rem)] min-h-[500px]">
         {/* Desktop Sidebar */}
-        <div className="hidden md:block w-64 lg:w-72 flex-shrink-0">
+        <div className="hidden md:block w-72 lg:w-80 flex-shrink-0">
           <ConversationHistory loadConversation={loadConversation} />
         </div>
 

@@ -48,13 +48,13 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
           placeholder="Type your question..."
           disabled={isLoading}
           aria-label="Chat message input"
-          className="flex-1 px-3 py-2 sm:px-4 sm:py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed text-sm sm:text-base text-slate-900 placeholder-slate-400"
+          className="flex-1 px-3 py-2.5 sm:px-5 sm:py-3.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed text-sm sm:text-base text-slate-900 placeholder-slate-400"
         />
         <button
           type="submit"
           disabled={!input.trim() || isLoading}
           aria-label="Send message"
-          className="px-3 py-2 sm:px-5 sm:py-2.5 bg-gradient-primary text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-lg shadow-primary-500/30"
+          className="px-4 py-2.5 sm:px-6 sm:py-3.5 bg-gradient-primary text-white rounded-xl font-medium sm:text-base hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-lg shadow-primary-500/30"
         >
           <Send className="w-4 h-4" />
           <span className="hidden sm:inline">Send</span>
